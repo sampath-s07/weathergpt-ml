@@ -1,15 +1,22 @@
 import os
 import json
+from datetime import datetime
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from pydantic import BaseModel
 import joblib
+from dotenv import load_dotenv
+
+from api.chat_engine import ChatEngine, fetch_live_weather
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Load NLP keywords
 with open(os.path.join(BASE_DIR, 'models', 'nlp', 'intent_keywords.json'), 'r') as f:
@@ -195,6 +202,64 @@ def get_city_recent_conditions(city_name):
         }
     except:
         return None
+def tool_rain(city: str, month: int = None):
+    if month is None:
+        month = datetime.now().month
+    data = predict_rain(month=int(month), city=city)
+    data["city"] = city
+    return data
+
+
+def tool_extreme(city: str):
+    live = fetch_live_weather(city)
+    if live.get("found"):
+        cur = live["current"]
+        data = predict_extreme(
+            temp=float(cur.get("temp_c") or 12),
+            wind=float(cur.get("wind_kmh") or 18),
+            rain=float(cur.get("precipitation_mm") or 0),
+            city=city,
+        )
+        data["live_city"] = live.get("city")
+        data["live_conditions"] = cur
+        return data
+    return predict_extreme(city=city)
+
+
+def tool_ml_forecast(city: str):
+    raw = forecast(city=city)
+    days = []
+    for d in raw.get("forecast") or []:
+        temp = d.get("temp")
+        days.append({
+            "day": str(d.get("day", ""))[:3],
+            "icon": d.get("icon", "🌤"),
+            "temp": temp if isinstance(temp, str) else f"{temp}°C",
+            "rain": d.get("rain", raw.get("model_used", "")),
+        })
+    return {"city": raw.get("city"), "forecast": days, "model_used": raw.get("model_used")}
+
+
+def tool_climate(city: str):
+    data = get_city_weather(city)
+    if not data:
+        return {"found": False, "message": f"No historical dataset match for '{city}'."}
+    return data
+
+
+chat_engine = ChatEngine({
+    "get_live_weather": fetch_live_weather,
+    "get_city_climate": tool_climate,
+    "predict_rain": tool_rain,
+    "check_extreme_weather": tool_extreme,
+    "get_ml_forecast": tool_ml_forecast,
+})
+
+
+class ChatRequest(BaseModel):
+    messages: list[dict]
+
+
 @app.get("/")
 def home():
     return {
@@ -204,8 +269,29 @@ def home():
             "xgboost": xgb_model is not None,
             "isolation_forest": iso_model is not None,
             "lstm": lstm_model is not None
-        }
+        },
+        "llm": chat_engine.provider_info()
     }
+
+
+@app.get("/ui")
+def ui():
+    return FileResponse(os.path.join(BASE_DIR, "frontend", "index.html"))
+
+
+@app.post("/chat")
+def chat(req: ChatRequest):
+    try:
+        return chat_engine.chat(req.messages)
+    except Exception as e:
+        return {
+            "reply": f"The language model request failed:\n\n{e}",
+            "provider": None,
+            "model": None,
+            "card": None,
+            "forecast": None,
+            "needs_key": False,
+        }
 
 @app.get("/ask")
 def ask(question: str):

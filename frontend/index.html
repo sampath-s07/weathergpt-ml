@@ -132,12 +132,12 @@ body{font-family:'Inter',sans-serif;background:#f4fdf7;color:#1a2e2a;height:100v
             <div class="header-icon">⛅</div>
             <div>
                 <div class="header-title">WeatherGPT</div>
-                <div class="header-sub">AI Weather Intelligence · 27M+ Real Records</div>
+                <div class="header-sub" id="headerSub">Live weather chat · powered by a real language model</div>
             </div>
         </div>
         <div class="online-badge">
             <div class="online-dot"></div>
-            Online
+            <span id="llmBadge">Checking AI…</span>
         </div>
     </div>
 
@@ -145,7 +145,7 @@ body{font-family:'Inter',sans-serif;background:#f4fdf7;color:#1a2e2a;height:100v
         <div class="welcome" id="welcome">
             <div class="welcome-icon">⛅</div>
             <h1>WeatherGPT</h1>
-            <p class="welcome-sub">Your AI weather assistant.<br>Ask me anything about weather — I give real answers.</p>
+            <p class="welcome-sub">A real conversational weather assistant.<br>Ask follow-ups, compare cities, or plan your day — like ChatGPT or Claude.</p>
             <div class="suggestions-grid">
                 <div class="sg-card" onclick="askQuick('Will it rain tomorrow?')">
                     <div class="sg-icon">🌧</div>
@@ -181,11 +181,14 @@ body{font-family:'Inter',sans-serif;background:#f4fdf7;color:#1a2e2a;height:100v
                 autocomplete="off">
             <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
         </div>
-        <div class="input-hint">Ask naturally · City weather · Rain forecast · Temperature · Alerts</div>
+        <div class="input-hint">Real AI chat · live weather · follow-up questions · rain, alerts, and forecasts</div>
     </div>
 </div>
 <script>
-const API = 'http://127.0.0.1:8000';
+const API = (window.location.origin && window.location.origin.includes('8000'))
+    ? window.location.origin
+    : 'http://127.0.0.1:8000';
+let chatHistory = [];
 
 const allSuggestions = [
     {icon:'🌧', text:'Will it rain tomorrow?'},
@@ -275,6 +278,20 @@ function hideWelcome() {
     if (w) w.remove();
 }
 
+function escapeHtml(s) {
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+function formatBot(text) {
+    return escapeHtml(text)
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+)`/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+}
+
 function addUserMsg(text) {
     hideWelcome();
     const box = document.getElementById('messages');
@@ -284,7 +301,7 @@ function addUserMsg(text) {
         <div class="msg-icon u-icon">👤</div>
         <div class="msg-body">
             <div class="msg-name">You &nbsp;<small style="font-weight:400;color:#9abfaa">${getTime()}</small></div>
-            <div class="msg-text">${text}</div>
+            <div class="msg-text">${escapeHtml(text)}</div>
         </div>`;
     box.appendChild(d);
     box.scrollTop = box.scrollHeight;
@@ -358,11 +375,12 @@ function removeTyping() {
 }
 
 function newChat() {
+    chatHistory = [];
     const box = document.getElementById('messages');
     box.innerHTML = `<div class="welcome" id="welcome">
         <div class="welcome-icon">⛅</div>
         <h1>WeatherGPT</h1>
-        <p class="welcome-sub">Your AI weather assistant.<br>Ask me anything about weather — I give real answers.</p>
+        <p class="welcome-sub">A real conversational weather assistant.<br>Ask follow-ups, compare cities, or plan your day — like ChatGPT or Claude.</p>
         <div class="suggestions-grid">
             <div class="sg-card" onclick="askQuick('Will it rain tomorrow?')">
                 <div class="sg-icon">🌧</div>
@@ -405,125 +423,117 @@ async function sendMessage() {
     input.value = '';
     document.getElementById('sendBtn').disabled = true;
     showTyping();
-    await new Promise(r => setTimeout(r, 1000));
-    removeTyping();
-    document.getElementById('sendBtn').disabled = false;
+    chatHistory.push({ role: 'user', content: q });
 
     try {
-        const res = await fetch(`${API}/ask?question=${encodeURIComponent(q)}`);
+        const res = await fetch(`${API}/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: chatHistory })
+        });
         const data = await res.json();
-        const month = new Date().getMonth() + 1;
-
-        if (data.city_data) {
-            const w = data.city_data;
-            const rainLevel = w.rain_days_percent > 60 ? 'very rainy' : w.rain_days_percent > 40 ? 'moderately rainy' : w.rain_days_percent > 20 ? 'occasionally rainy' : 'mostly dry';
-            const tempDesc = w.avg_temp > 30 ? 'hot' : w.avg_temp > 22 ? 'warm' : w.avg_temp > 12 ? 'mild' : w.avg_temp > 4 ? 'cold' : 'very cold';
-            const windDesc = w.avg_wind_kmh > 50 ? 'very windy' : w.avg_wind_kmh > 30 ? 'quite breezy' : w.avg_wind_kmh > 15 ? 'moderate breeze' : 'calm';
-            addBotMsg(
-                `I found <strong>${w.city}</strong> in our weather database with <strong>${w.total_records.toLocaleString()} historical records</strong> to analyze.<br><br>
-                <strong>${w.city}</strong> has a <strong>${tempDesc} climate</strong> with an average temperature of <strong>${w.avg_temp}°C</strong>. On the coldest days it can drop to <strong>${w.min_temp}°C</strong>, and on warm days it can reach up to <strong>${w.max_temp}°C</strong>.<br><br>
-                When it comes to rainfall, ${w.city} is <strong>${rainLevel}</strong> — historically it rains on about <strong>${w.rain_days_percent}%</strong> of days. Winds are typically <strong>${windDesc}</strong> averaging <strong>${w.avg_wind_kmh} km/h</strong>.`,
-                {
-                    title: 'Weather Profile — ' + w.city,
-                    value: w.avg_temp + '°C',
-                    emoji: w.avg_temp > 20 ? '☀️' : w.avg_temp > 10 ? '⛅' : '❄️',
-                    desc: `🌡 Min ${w.min_temp}°C — Max ${w.max_temp}°C &nbsp;|&nbsp; 💨 Wind ${w.avg_wind_kmh} km/h &nbsp;|&nbsp; 🌧 Rain ${w.rain_days_percent}% of days`,
-                    prob: w.rain_days_percent
-                }
-            );
-
-        } else if (data.intent === 'rain_prediction') {
-            const r = await fetch(`${API}/predict/rain?month=${month}&temp=12&min_temp=8&max_temp=16&wind=18`);
-            const rd = await r.json();
-            const prob = rd.rain_probability;
-            let msg = '', emoji = '', advice = '';
-            if (prob > 70) {
-                msg = `After analyzing current atmospheric patterns against our database of <strong>27 million+ weather records</strong>, I'm seeing a <strong>high probability of rain (${prob}%)</strong> today.<br><br>The data shows moisture-heavy conditions — temperature is dropping, wind patterns are shifting, and the seasonal pattern strongly suggests rainfall. 🌧<br><br><strong>My advice:</strong> Take an umbrella. Avoid outdoor events if possible. Roads may get slippery so drive carefully.`;
-                emoji = '🌧'; advice = '🌂 High rain risk — umbrella essential';
-            } else if (prob > 40) {
-                msg = `Looking at today's atmospheric data compared to <strong>27 million+ historical records</strong>, there's a <strong>moderate rain probability (${prob}%)</strong> today.<br><br>The data is showing mixed signals — some moisture in the atmosphere but not enough to confirm heavy rainfall. Conditions could go either way throughout the day. ⛅<br><br><strong>My advice:</strong> Keep an umbrella in your bag just in case. Check conditions before heading out in the afternoon.`;
-                emoji = '⛅'; advice = '☂️ Moderate risk — umbrella recommended';
-            } else {
-                msg = `Good news! After comparing today's patterns against <strong>27 million+ weather records</strong>, the data shows only a <strong>low chance of rain (${prob}%)</strong> today. ☀️<br><br>Atmospheric pressure is stable, humidity is low, and wind conditions are calm. All signs point to a dry, pleasant day ahead.<br><br><strong>My advice:</strong> No umbrella needed. Great conditions for outdoor activities!`;
-                emoji = '☀️'; advice = '✅ Low risk — enjoy the dry weather';
-            }
-            addBotMsg(msg, { title: 'Rain Probability', value: prob + '%', emoji, desc: advice, prob });
-
-        } else if (data.intent === 'extreme_weather') {
-            const r = await fetch(`${API}/predict/extreme?temp=12&wind=18&rain=5`);
-            const rd = await r.json();
-            if (rd.is_extreme) {
-                addBotMsg(`⚠️ <strong>Weather Alert!</strong><br><br>Our anomaly detection system has flagged current conditions as <strong>outside normal historical patterns</strong> based on analysis of 27M+ records.<br><br><strong>Active Warnings:</strong><br>${rd.alerts.map(a => '🔴 ' + a).join('<br>')}<br><br>Please take precautions and follow local weather authority updates. Stay safe!`);
-            } else {
-                addBotMsg(
-                    `I ran a full anomaly check on current weather conditions against <strong>27 million+ historical weather records</strong>.<br><br>Everything looks normal! ✅ Current temperature, wind speed, and precipitation levels are all within safe historical ranges. No unusual patterns detected.<br><br>No storm warnings, no heatwave risk, no flood indicators. You're good to go!`,
-                    { title: 'Weather Safety Check', value: '✅ All Clear', emoji: '🛡️', desc: 'No dangerous weather patterns detected. Conditions are within safe historical range.' }
-                );
-            }
-
-        } else if (data.intent === 'forecast') {
-            addBotMsg(
-                `Here is your <strong>7-day weather forecast</strong> based on historical pattern analysis from our database:<br><br>
-                The start of the week looks pleasant with mild temperatures around <strong>13–14°C</strong>. Mid-week expect rainfall on <strong>Tuesday and Thursday</strong> — temperatures will dip to around <strong>10–11°C</strong>. The weekend clears up beautifully with <strong>Friday reaching 16°C</strong> — the warmest day of the week. Plan any outdoor activities for the weekend!`,
-                null,
-                [
-                    {day:'Mon', icon:'🌤', temp:'14°C', rain:'20%'},
-                    {day:'Tue', icon:'🌧', temp:'11°C', rain:'75%'},
-                    {day:'Wed', icon:'⛅', temp:'13°C', rain:'35%'},
-                    {day:'Thu', icon:'🌧', temp:'10°C', rain:'80%'},
-                    {day:'Fri', icon:'☀️', temp:'16°C', rain:'10%'},
-                    {day:'Sat', icon:'🌤', temp:'15°C', rain:'15%'},
-                    {day:'Sun', icon:'⛅', temp:'13°C', rain:'30%'}
-                ]
-            );
-
-        } else if (data.intent === 'temperature') {
-            addBotMsg(
-                `Based on historical data patterns from our database, here is today's temperature breakdown:<br><br>
-                The current temperature is a <strong>mild 12°C</strong> — typical for this time of year. It will feel slightly cooler than that due to a light breeze bringing the feels-like temperature down to around <strong>10°C</strong>.<br><br>
-                Expect the temperature to <strong>drop to 8°C</strong> tonight, so definitely bring a jacket if you are going out after dark. The afternoon high should reach <strong>16°C</strong> — quite comfortable for being outside.`,
-                { title: 'Temperature Today', value: '12°C', emoji: '🌡', desc: '🌅 Morning: 9°C &nbsp;|&nbsp; ☀️ Afternoon: 16°C &nbsp;|&nbsp; 🌙 Night: 8°C &nbsp;|&nbsp; 💨 Feels like: 10°C', prob: 55 }
-            );
-
-        } else if (data.intent === 'activity_advice') {
-            addBotMsg(
-                `Let me check today's conditions for you!<br><br>
-                After analyzing current weather data:<br><br>
-                ✅ <strong>Temperature:</strong> 12°C — comfortable, not too hot or cold<br>
-                ✅ <strong>Wind:</strong> 18 km/h — calm, no strong gusts<br>
-                ✅ <strong>Rain risk:</strong> Low — skies should stay mostly clear<br>
-                ✅ <strong>Visibility:</strong> Clear — safe for travel and sports<br><br>
-                <strong>Verdict: Great day to go outside! 🚶</strong><br><br>
-                Best window is the <strong>morning to early afternoon</strong>. A light jacket is recommended. Conditions may become slightly cloudier by evening.`
-            );
-
-        } else {
-            if (data.city && !data.city_data) {
-                addBotMsg(`I searched our database for <strong>${data.city}</strong> but couldn't find it. Our dataset covers mainly European cities.<br><br>Try searching for: <em>brussels, london, paris, amsterdam, berlin, madrid, rome, vienna, prague, warsaw</em>`);
-            } else {
-                addBotMsg(
-                    `I am <strong>WeatherGPT</strong> — your AI weather assistant powered by real historical weather data from <strong>27 million+ records</strong>.<br><br>
-                    Here is what I can help you with:<br><br>
-                    🌍 <strong>City weather</strong> — <em>"weather in london"</em><br>
-                    🌧 <strong>Rain prediction</strong> — <em>"will it rain tomorrow?"</em><br>
-                    📅 <strong>7 day forecast</strong> — <em>"show me this week's forecast"</em><br>
-                    ⚡ <strong>Weather alerts</strong> — <em>"any storms coming?"</em><br>
-                    🌡 <strong>Temperature</strong> — <em>"how cold is it today?"</em><br>
-                    🚶 <strong>Activity advice</strong> — <em>"good day for a walk?"</em><br><br>
-                    Just ask naturally — I understand normal conversation!`
-                );
-            }
-        }
-
-    } catch(e) {
+        removeTyping();
+        const reply = data.reply || 'I could not generate a reply.';
+        chatHistory.push({ role: 'assistant', content: reply });
+        await typeBot(reply, data.card, data.forecast);
+    } catch (e) {
+        removeTyping();
         addBotMsg(
             `I'm having trouble connecting to the weather data server right now. 🔌<br><br>
-            Please make sure the API server is running by typing this in your terminal:<br><br>
+            Please make sure the API server is running:<br><br>
             <strong>uvicorn api.main:app --reload</strong><br><br>
-            Then come back and ask your question again!`
+            Then open <em>http://127.0.0.1:8000/ui</em>`
         );
     }
+    document.getElementById('sendBtn').disabled = false;
 }
+
+async function typeBot(text, cardData, forecastData) {
+    const box = document.getElementById('messages');
+    const d = document.createElement('div');
+    d.className = 'msg-wrapper';
+    const textId = 't' + Date.now();
+    d.innerHTML = `
+        <div class="msg-icon ai-icon">⛅</div>
+        <div class="msg-body">
+            <div class="msg-name">WeatherGPT &nbsp;<small style="font-weight:400;color:#9abfaa">${getTime()}</small></div>
+            <div class="msg-text" id="${textId}"></div>
+        </div>`;
+    box.appendChild(d);
+    const el = document.getElementById(textId);
+    let i = 0;
+    const step = Math.max(2, Math.ceil(text.length / 80));
+    await new Promise(resolve => {
+        function tick() {
+            i = Math.min(text.length, i + step);
+            el.innerHTML = formatBot(text.slice(0, i));
+            box.scrollTop = box.scrollHeight;
+            if (i < text.length) requestAnimationFrame(tick);
+            else resolve();
+        }
+        tick();
+    });
+    if (cardData || forecastData) {
+        addBotExtras(el, cardData, forecastData);
+        box.scrollTop = box.scrollHeight;
+    }
+}
+
+function addBotExtras(el, cardData, forecastData) {
+    const uid = 'f' + Date.now();
+    let extra = '';
+    if (cardData) {
+        extra += `<div class="w-card">
+            <div class="wc-top">
+                <div>
+                    <div class="wc-label">${escapeHtml(cardData.title || '')}</div>
+                    <div class="wc-value">${escapeHtml(String(cardData.value || ''))}</div>
+                </div>
+                <div class="wc-emoji">${cardData.emoji || '🌤'}</div>
+            </div>
+            <div class="wc-desc">${escapeHtml(cardData.desc || '')}</div>
+            ${cardData.prob !== undefined && cardData.prob !== null ? `<div class="wc-bar"><div class="wc-fill" id="${uid}"></div></div>` : ''}
+        </div>`;
+    }
+    if (forecastData && forecastData.length) {
+        extra += '<div class="forecast-grid">' + forecastData.map(f =>
+            `<div class="fc-card">
+                <div class="fc-day">${escapeHtml(f.day || '')}</div>
+                <div class="fc-ico">${f.icon || '🌤'}</div>
+                <div class="fc-tmp">${escapeHtml(String(f.temp || ''))}</div>
+                <div class="fc-rain">${escapeHtml(f.rain || '')}</div>
+            </div>`
+        ).join('') + '</div>';
+    }
+    el.insertAdjacentHTML('beforeend', extra);
+    if (cardData && cardData.prob !== undefined && cardData.prob !== null) {
+        setTimeout(() => {
+            const bar = document.getElementById(uid);
+            if (bar) bar.style.width = Math.min(Number(cardData.prob) || 0, 100) + '%';
+        }, 200);
+    }
+}
+
+async function checkLlm() {
+    try {
+        const res = await fetch(`${API}/`);
+        const data = await res.json();
+        const llm = data.llm || {};
+        const badge = document.getElementById('llmBadge');
+        const sub = document.getElementById('headerSub');
+        if (llm.ready) {
+            const name = llm.provider === 'anthropic' ? 'Claude' : llm.provider === 'openai' ? 'ChatGPT' : 'Groq';
+            badge.textContent = name + ' online';
+            sub.textContent = `Live weather chat · ${name} · ${llm.model}`;
+        } else {
+            badge.textContent = 'Add API key';
+            sub.textContent = 'Add GROQ_API_KEY, ANTHROPIC_API_KEY, or OPENAI_API_KEY in .env';
+        }
+    } catch (e) {
+        document.getElementById('llmBadge').textContent = 'API offline';
+    }
+}
+checkLlm();
 
 function askQuick(q) {
     document.getElementById('userInput').value = q;

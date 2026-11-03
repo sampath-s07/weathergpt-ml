@@ -3,3 +3,4 @@ models/lstm/model.h5
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+.env
