@@ -1,1 +1,8 @@
-{"rain_words": ["rain", "rainfall", "umbrella", "wet", "drizzle", "shower"], "forecast_words": ["forecast", "week", "tomorrow", "next", "7 day", "days"], "extreme_words": ["storm", "hurricane", "flood", "extreme", "alert", "warning"], "temp_words": ["temperature", "hot", "cold", "warm", "heat", "freeze", "temp"], "activity_words": ["outside", "outdoor", "walk", "run", "picnic", "go out"]}
+{
+  "rain_words": ["rain", "rainfall", "precipitation", "umbrella", "wet", "drizzle", "shower", "raining", "rainy", "downpour", "storm", "monsoon", "flood"],
+  "extreme_words": ["storm", "extreme", "danger", "warning", "hurricane", "tornado", "flood", "heatwave", "blizzard", "thunderstorm", "lightning", "cyclone", "disaster", "emergency"],
+  "forecast_words": ["forecast", "week", "7 day", "seven day", "next week", "coming days", "this week", "predict", "prediction", "tomorrow", "future", "upcoming"],
+  "temperature_words": ["temperature", "hot", "cold", "warm", "cool", "heat", "freeze", "celsius", "degree", "temp", "feels like", "humid", "humidity"],
+  "activity_words": ["walk", "outside", "outdoor", "exercise", "run", "jog", "picnic", "travel", "drive", "trip", "go out", "play", "sport", "safe", "good day"],
+  "city_words": ["in", "at", "for", "city", "place", "location", "country", "region", "area", "town"]
+}
