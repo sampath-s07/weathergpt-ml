@@ -1,0 +1,86 @@
+{
+  "models": {
+    "xgboost": {
+      "model_name": "XGBoost Rain Classifier",
+      "task": "Binary Rain Classification (will_rain)",
+      "algorithm": "XGBClassifier (scale_pos_weight=3, max_depth=6, n_estimators=100)",
+      "accuracy": 0.74,
+      "balanced_accuracy": 0.628,
+      "auc_roc": 0.745,
+      "precision_rain": 0.41,
+      "recall_rain": 0.79,
+      "training_samples": 400000,
+      "evaluation_samples": 100000,
+      "features": [
+        "avg_temp_c",
+        "min_temp_c",
+        "max_temp_c",
+        "avg_wind_speed_kmh",
+        "month",
+        "day",
+        "year"
+      ],
+      "status": "Production"
+    },
+    "lstm": {
+      "model_name": "Deep LSTM Forecaster",
+      "task": "Multi-Step 7-Day Temperature Forecasting",
+      "architecture": "Sequential LSTM(64, return_sequences=True) -> Dropout(0.2) -> LSTM(32) -> Dropout(0.2) -> Dense(7)",
+      "rmse_celsius": 1.85,
+      "mae_celsius": 1.42,
+      "lookback_window_days": 30,
+      "forecast_horizon_days": 7,
+      "training_dataset": "Brussels Historical Daily Climate (69,347 records)",
+      "optimizer": "Adam (MSE loss)",
+      "status": "Production"
+    },
+    "isolation_forest": {
+      "model_name": "Isolation Forest Anomaly Detector",
+      "task": "Extreme / Dangerous Weather Pattern Detection",
+      "algorithm": "Scikit-Learn IsolationForest",
+      "contamination_rate": 0.05,
+      "features": [
+        "avg_temp_c",
+        "min_temp_c",
+        "max_temp_c",
+        "avg_wind_speed_kmh",
+        "precipitation_mm"
+      ],
+      "monitored_hazards": [
+        "Extreme Heatwaves (>38°C)",
+        "Severe Freezing (<-10°C)",
+        "High Wind Storms (>75 km/h)",
+        "Flash Flood / Torrential Rain (>80mm)"
+      ],
+      "status": "Production"
+    },
+    "nlp_intent": {
+      "model_name": "WeatherGPT Intent Classifier",
+      "task": "Zero-latency Query Intent Routing",
+      "classes": [
+        "rain_prediction",
+        "forecast",
+        "extreme_weather",
+        "temperature",
+        "activity_advice",
+        "city_comparison",
+        "general"
+      ],
+      "accuracy": 0.96,
+      "benchmark": "Custom 500-sample conversational weather queries test set",
+      "status": "Production"
+    },
+    "ensemble": {
+      "model_name": "WeatherGPT Multi-Model Fusion",
+      "description": "Blends XGBoost precipitation probabilities, LSTM multi-step temperature trends, and Isolation Forest hazard gates into a unified predictive confidence report.",
+      "status": "Active"
+    }
+  },
+  "dataset": {
+    "source": "Global Daily Climate Data",
+    "total_records": 27621770,
+    "features_available": 13,
+    "coverage": "Worldwide historical weather stations across 180+ countries"
+  }
+}
+

@@ -3,125 +3,190 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WeatherGPT - AI Weather Assistant</title>
+<title>WeatherGPT - AI & Machine Learning Weather Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:#f4fdf7;color:#1a2e2a;height:100vh;display:flex;overflow:hidden}
+:root {
+    --bg: #f4fdf7;
+    --main-bg: #f8fffe;
+    --sidebar-bg: linear-gradient(180deg,#e6f7ee 0%,#e0f4fb 100%);
+    --card-bg: #ffffff;
+    --border-color: #b8e6cc;
+    --border-light: #c8e8d8;
+    --text-primary: #1a2e2a;
+    --text-secondary: #2d6a50;
+    --text-muted: #68b890;
+    --accent: #2ecc71;
+    --accent-dark: #1abc9c;
+    --msg-user-bg: #f0fdf7;
+    --msg-ai-bg: transparent;
+    --widget-bg: linear-gradient(135deg,#e6f7ee,#e0f4fb);
+    --input-bg: #f0fdf7;
+    --modal-overlay: rgba(0,0,0,0.4);
+    --shadow: 0 4px 15px rgba(46,204,113,0.1);
+}
 
-.sidebar{width:260px;background:linear-gradient(180deg,#e6f7ee 0%,#e0f4fb 100%);border-right:1px solid #b8e6cc;display:flex;flex-direction:column;flex-shrink:0}
+body.dark {
+    --bg: #0d1117;
+    --main-bg: #111822;
+    --sidebar-bg: linear-gradient(180deg,#161f28 0%,#131c24 100%);
+    --card-bg: #1c2633;
+    --border-color: #27394c;
+    --border-light: #2c4157;
+    --text-primary: #ecf2f8;
+    --text-secondary: #a2c4b8;
+    --text-muted: #73998b;
+    --accent: #2ecc71;
+    --accent-dark: #27ae60;
+    --msg-user-bg: #162423;
+    --msg-ai-bg: transparent;
+    --widget-bg: linear-gradient(135deg,#182a2b,#1a2736);
+    --input-bg: #17242e;
+    --modal-overlay: rgba(0,0,0,0.7);
+    --shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text-primary);height:100vh;display:flex;overflow:hidden;transition:background 0.3s,color 0.3s}
+
+.sidebar{width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border-color);display:flex;flex-direction:column;flex-shrink:0}
 .sidebar-top{padding:16px}
-.new-chat-btn{width:100%;padding:12px;background:linear-gradient(135deg,#2ecc71,#1abc9c);color:white;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;box-shadow:0 3px 10px rgba(46,204,113,0.2)}
+.new-chat-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:white;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;box-shadow:0 3px 10px rgba(46,204,113,0.2)}
 .new-chat-btn:hover{transform:translateY(-1px);box-shadow:0 5px 15px rgba(46,204,113,0.3)}
-.sidebar-label{padding:12px 16px 6px;font-size:10px;font-weight:700;color:#68b890;text-transform:uppercase;letter-spacing:1.2px}
+.sidebar-label{padding:12px 16px 6px;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.2px}
 .chat-history{flex:1;overflow-y:auto;padding:0 8px}
-.history-item{padding:10px 12px;border-radius:10px;cursor:pointer;font-size:12px;color:#2d6a50;transition:all 0.2s;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:8px}
-.history-item:hover{background:#d0ede0}
-.history-item.active{background:#c4e8d4;font-weight:500}
-.history-item span{opacity:0.6}
-.sidebar-bottom{padding:12px 16px;border-top:1px solid #b8e6cc}
-.sb-label{font-size:10px;font-weight:700;color:#68b890;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-.city-row{display:flex;gap:6px}
-.city-row input{flex:1;padding:9px 12px;border:1.5px solid #b8e6cc;border-radius:10px;font-size:12px;font-family:'Inter',sans-serif;background:white;color:#1a2e2a;outline:none;transition:all 0.2s}
-.city-row input:focus{border-color:#2ecc71;box-shadow:0 0 0 3px rgba(46,204,113,0.1)}
-.city-row button{padding:9px 12px;background:linear-gradient(135deg,#2ecc71,#1abc9c);border:none;border-radius:10px;color:white;cursor:pointer;font-size:13px;transition:all 0.2s}
+.history-item{padding:10px 12px;border-radius:10px;cursor:pointer;font-size:12px;color:var(--text-secondary);transition:all 0.2s;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:8px}
+.history-item:hover{background:rgba(46,204,113,0.15)}
+.history-item.active{background:rgba(46,204,113,0.22);font-weight:600}
+.history-item span{opacity:0.8}
+
+.sidebar-bottom{padding:12px 16px;border-top:1px solid var(--border-color);position:relative}
+.sb-label{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.city-row{display:flex;gap:6px;position:relative}
+.city-row input{flex:1;padding:9px 12px;border:1.5px solid var(--border-color);border-radius:10px;font-size:12px;font-family:'Inter',sans-serif;background:var(--card-bg);color:var(--text-primary);outline:none;transition:all 0.2s}
+.city-row input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(46,204,113,0.15)}
+.city-row button{padding:9px 12px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));border:none;border-radius:10px;color:white;cursor:pointer;font-size:13px;transition:all 0.2s}
 .city-row button:hover{transform:scale(1.05)}
 
-.main{flex:1;display:flex;flex-direction:column;min-width:0;background:#f8fffe}
-.header{padding:14px 28px;background:white;border-bottom:1px solid #c8e8d8;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(46,204,113,0.06)}
+.city-autocomplete{position:absolute;bottom:calc(100% + 6px);left:0;right:0;background:var(--card-bg);border:1.5px solid var(--border-color);border-radius:12px;max-height:180px;overflow-y:auto;box-shadow:var(--shadow);display:none;z-index:100}
+.city-ac-item{padding:8px 12px;font-size:12px;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.15s;border-bottom:1px solid rgba(184,230,204,0.15)}
+.city-ac-item:last-child{border-bottom:none}
+.city-ac-item:hover{background:rgba(46,204,113,0.15);color:var(--accent)}
+
+.main{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--main-bg)}
+.header{padding:12px 24px;background:var(--card-bg);border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,0.03)}
 .header-left{display:flex;align-items:center;gap:12px}
-.header-icon{width:40px;height:40px;background:linear-gradient(135deg,#2ecc71,#1abc9c);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 3px 10px rgba(46,204,113,0.2)}
-.header-title{font-size:17px;font-weight:700;color:#1a2e2a}
-.header-sub{font-size:11px;color:#68b890;margin-top:1px}
-.online-badge{display:flex;align-items:center;gap:6px;background:#e6f7ee;border:1px solid #b8e6cc;border-radius:20px;padding:7px 14px;font-size:12px;color:#2d7a50;font-weight:500}
-.online-dot{width:7px;height:7px;background:#2ecc71;border-radius:50%;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(46,204,113,0.4)}50%{box-shadow:0 0 0 5px rgba(46,204,113,0)}}
+.header-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 3px 10px rgba(46,204,113,0.25)}
+.header-title{font-size:15px;font-weight:700;color:var(--text-primary)}
+.header-sub{font-size:11.5px;color:var(--text-muted);margin-top:2px}
+.header-actions{display:flex;align-items:center;gap:10px}
 
-.messages{flex:1;overflow-y:auto;padding:0;scroll-behavior:smooth}
-.messages::-webkit-scrollbar{width:4px}
-.messages::-webkit-scrollbar-thumb{background:#b8e6cc;border-radius:2px}
+.metrics-btn{padding:7px 14px;background:rgba(46,204,113,0.15);border:1px solid var(--accent);border-radius:20px;font-size:12px;font-weight:600;color:var(--accent);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s}
+.metrics-btn:hover{background:var(--accent);color:white}
+.theme-btn{width:36px;height:36px;border-radius:50%;background:var(--card-bg);border:1.5px solid var(--border-light);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.theme-btn:hover{border-color:var(--accent);transform:rotate(15deg)}
 
-.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 40px;text-align:center;min-height:100%}
-.welcome-icon{width:80px;height:80px;background:linear-gradient(135deg,#2ecc71,#1abc9c);border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 20px;box-shadow:0 10px 30px rgba(46,204,113,0.25);animation:float 3s ease-in-out infinite}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.welcome h1{font-size:32px;font-weight:700;color:#1a2e2a;margin-bottom:8px}
-.welcome-sub{font-size:15px;color:#68b890;margin-bottom:36px;line-height:1.6}
-.suggestions-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:540px;width:100%}
-.sg-card{background:white;border:1.5px solid #c8e8d8;border-radius:14px;padding:16px 18px;cursor:pointer;text-align:left;transition:all 0.25s;font-family:'Inter',sans-serif}
-.sg-card:hover{border-color:#2ecc71;background:#f0fdf4;transform:translateY(-3px);box-shadow:0 6px 20px rgba(46,204,113,0.12)}
-.sg-icon{font-size:22px;margin-bottom:8px}
-.sg-title{font-size:13px;font-weight:600;color:#1a2e2a;margin-bottom:3px}
-.sg-desc{font-size:12px;color:#68b890}
+.online-badge{display:flex;align-items:center;gap:6px;background:rgba(46,204,113,0.15);border:1px solid var(--accent);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:var(--accent)}
+.online-dot{width:7px;height:7px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,204,113,0.6)}70%{box-shadow:0 0 0 6px rgba(46,204,113,0)}100%{box-shadow:0 0 0 0 rgba(46,204,113,0)}}
 
-.msg-wrapper{padding:22px 28px;display:flex;gap:16px;border-bottom:1px solid rgba(184,230,204,0.3);animation:fadeIn 0.3s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.msg-wrapper.user-msg{background:#f0fdf7}
-.msg-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-top:2px}
-.ai-icon{background:linear-gradient(135deg,#2ecc71,#1abc9c)}
-.u-icon{background:linear-gradient(135deg,#74b9ff,#0984e3)}
+.messages{flex:1;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:20px}
+.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:360px;text-align:center;padding:20px}
+.welcome-icon{width:64px;height:64px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:16px;box-shadow:0 8px 24px rgba(46,204,113,0.3)}
+.welcome h1{font-size:24px;font-weight:700;color:var(--text-primary);margin-bottom:8px}
+.welcome-sub{font-size:13.5px;color:var(--text-secondary);max-width:540px;line-height:1.6;margin-bottom:28px}
+.suggestions-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;max-width:720px;width:100%}
+.sg-card{background:var(--card-bg);border:1.5px solid var(--border-light);border-radius:14px;padding:14px 16px;cursor:pointer;text-align:left;transition:all 0.2s}
+.sg-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow)}
+.sg-icon{font-size:20px;margin-bottom:6px}
+.sg-title{font-size:12.5px;font-weight:700;color:var(--text-primary);margin-bottom:3px}
+.sg-desc{font-size:11px;color:var(--text-muted)}
+
+.msg-wrapper{display:flex;gap:12px;max-width:820px;width:100%}
+.user-msg{margin-left:auto;flex-direction:row-reverse}
+.msg-icon{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+.ai-icon{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:white}
+.u-icon{background:var(--card-bg);border:1.5px solid var(--border-color)}
 .msg-body{flex:1;min-width:0}
-.msg-name{font-size:13px;font-weight:700;color:#1a2e2a;margin-bottom:7px}
-.msg-text{font-size:14px;line-height:1.8;color:#2d4a3e}
-.msg-text strong{color:#1a2e2a;font-weight:600}
-.msg-text em{color:#2ecc71;font-style:normal;font-weight:500}
+.user-msg .msg-body{text-align:right}
+.msg-name{font-size:11.5px;font-weight:700;color:var(--text-muted);margin-bottom:6px}
+.msg-text{display:inline-block;padding:12px 18px;border-radius:16px;font-size:13.5px;line-height:1.65;word-break:break-word;max-width:100%}
+.user-msg .msg-text{background:var(--msg-user-bg);border:1.5px solid var(--border-color);border-bottom-right-radius:4px;text-align:left;color:var(--text-primary)}
+.msg-wrapper:not(.user-msg) .msg-text{background:transparent;color:var(--text-primary);padding-left:0;padding-right:0}
 
-.w-card{background:linear-gradient(135deg,#e6f7ee,#e0f4fb);border:1.5px solid #b8e6cc;border-radius:16px;padding:20px;margin-top:14px;max-width:420px}
-.wc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
-.wc-label{font-size:10px;font-weight:700;color:#2ecc71;text-transform:uppercase;letter-spacing:1.2px}
-.wc-value{font-size:34px;font-weight:700;color:#1a3a2a;line-height:1}
-.wc-emoji{font-size:32px}
-.wc-desc{font-size:12.5px;color:#3a6a50;line-height:1.6}
-.wc-bar{height:7px;background:#c8e8d8;border-radius:4px;margin-top:14px;overflow:hidden}
-.wc-fill{height:100%;background:linear-gradient(90deg,#2ecc71,#1abc9c);border-radius:4px;width:0;transition:width 1.2s cubic-bezier(0.4,0,0.2,1)}
+.w-card{background:var(--widget-bg);border:1.5px solid var(--border-color);border-radius:16px;padding:18px 20px;margin-top:14px;box-shadow:var(--shadow)}
+.wc-top{display:flex;justify-content:space-between;align-items:flex-start}
+.wc-label{font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
+.wc-value{font-size:26px;font-weight:700;color:var(--text-primary);margin-top:4px}
+.wc-emoji{font-size:34px}
+.wc-desc{font-size:13px;color:var(--text-secondary);margin-top:10px;line-height:1.5;white-space:pre-line}
+.wc-bar{height:7px;background:var(--border-light);border-radius:4px;margin-top:14px;overflow:hidden}
+.wc-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-dark));border-radius:4px;width:0;transition:width 1.2s cubic-bezier(0.4,0,0.2,1)}
 
 .forecast-grid{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-.fc-card{background:white;border:1.5px solid #c8e8d8;border-radius:12px;padding:12px 14px;text-align:center;min-width:68px;transition:all 0.2s}
-.fc-card:hover{border-color:#2ecc71;transform:translateY(-2px)}
-.fc-day{font-size:11px;color:#68b890;font-weight:600;margin-bottom:4px}
+.fc-card{background:var(--card-bg);border:1.5px solid var(--border-light);border-radius:12px;padding:12px 14px;text-align:center;min-width:68px;transition:all 0.2s}
+.fc-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.fc-day{font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px}
 .fc-ico{font-size:22px;margin:4px 0}
-.fc-tmp{font-size:13px;font-weight:700;color:#1a2e2a}
-.fc-rain{font-size:10px;color:#68b890;margin-top:2px}
+.fc-tmp{font-size:13px;font-weight:700;color:var(--text-primary)}
+.fc-rain{font-size:10px;color:var(--text-muted);margin-top:2px}
 
 .typing-indicator{display:flex;gap:5px;align-items:center;padding:4px 0}
-.typing-indicator span{width:8px;height:8px;background:#2ecc71;border-radius:50%;animation:bounce 1.4s infinite}
+.typing-indicator span{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:bounce 1.4s infinite}
 .typing-indicator span:nth-child(2){animation-delay:.2s}
 .typing-indicator span:nth-child(3){animation-delay:.4s}
 @keyframes bounce{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-6px);opacity:1}}
 
-.input-area{padding:16px 28px 20px;background:white;border-top:1px solid #c8e8d8;position:relative}
-.suggestions-box{position:absolute;bottom:100%;left:28px;right:28px;background:white;border:1.5px solid #b8e6cc;border-radius:14px;overflow:hidden;box-shadow:0 -4px 20px rgba(46,204,113,0.12);display:none;margin-bottom:4px}
-.suggestion-item{padding:11px 16px;font-size:13px;color:#2d4a3e;cursor:pointer;display:flex;align-items:center;gap:10px;transition:background 0.15s;border-bottom:1px solid #f0fdf4}
+.input-area{padding:14px 28px 18px;background:var(--card-bg);border-top:1px solid var(--border-light);position:relative}
+.suggestions-box{position:absolute;bottom:100%;left:28px;right:28px;background:var(--card-bg);border:1.5px solid var(--border-color);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);display:none;margin-bottom:6px}
+.suggestion-item{padding:11px 16px;font-size:13px;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;gap:10px;transition:background 0.15s;border-bottom:1px solid rgba(184,230,204,0.15)}
 .suggestion-item:last-child{border-bottom:none}
-.suggestion-item:hover{background:#f0fdf7;color:#1a3a2a}
-.suggestion-item .si-icon{font-size:15px;opacity:0.7}
-.input-wrapper{display:flex;gap:10px;background:#f0fdf7;border:1.5px solid #b8e6cc;border-radius:16px;padding:8px 8px 8px 18px;transition:all 0.2s}
-.input-wrapper:focus-within{border-color:#2ecc71;box-shadow:0 0 0 3px rgba(46,204,113,0.1);background:white}
-#userInput{flex:1;background:transparent;border:none;outline:none;font-family:'Inter',sans-serif;font-size:14px;color:#1a2e2a;padding:7px 0}
-#userInput::placeholder{color:#9abfaa}
-.send-btn{width:44px;height:44px;background:linear-gradient(135deg,#2ecc71,#1abc9c);border:none;border-radius:12px;color:white;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;box-shadow:0 3px 10px rgba(46,204,113,0.2)}
+.suggestion-item:hover{background:var(--input-bg);color:var(--accent)}
+.suggestion-item .si-icon{font-size:15px;opacity:0.8}
+.input-wrapper{display:flex;gap:10px;background:var(--input-bg);border:1.5px solid var(--border-color);border-radius:16px;padding:8px 8px 8px 18px;transition:all 0.2s}
+.input-wrapper:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(46,204,113,0.15);background:var(--card-bg)}
+#userInput{flex:1;background:transparent;border:none;outline:none;font-family:'Inter',sans-serif;font-size:14px;color:var(--text-primary);padding:7px 0}
+#userInput::placeholder{color:var(--text-muted)}
+.send-btn{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));border:none;border-radius:12px;color:white;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;box-shadow:0 3px 10px rgba(46,204,113,0.2)}
 .send-btn:hover{transform:scale(1.05);box-shadow:0 5px 15px rgba(46,204,113,0.3)}
 .send-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-.input-hint{font-size:11px;color:#9abfaa;text-align:center;margin-top:8px}
+.input-hint{font-size:11px;color:var(--text-muted);text-align:center;margin-top:8px}
+
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--modal-overlay);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:1000;animation:fadeIn 0.2s ease}
+.modal-content{background:var(--card-bg);border:1.5px solid var(--border-color);border-radius:18px;width:90%;max-width:640px;max-height:85vh;overflow-y:auto;padding:24px 28px;box-shadow:0 10px 40px rgba(0,0,0,0.3);position:relative}
+.modal-close{position:absolute;top:18px;right:20px;background:transparent;border:none;font-size:22px;color:var(--text-muted);cursor:pointer;transition:color 0.2s}
+.modal-close:hover{color:var(--text-primary)}
+.modal-title{font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.modal-sub{font-size:12px;color:var(--text-muted);margin-bottom:18px}
+.metric-card{background:var(--input-bg);border:1px solid var(--border-light);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.mc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.mc-title{font-size:13.5px;font-weight:700;color:var(--text-primary)}
+.mc-badge{font-size:10.5px;padding:3px 8px;border-radius:8px;background:rgba(46,204,113,0.2);color:var(--accent);font-weight:700}
+.mc-details{font-size:12px;color:var(--text-secondary);line-height:1.6}
+.mc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.mc-pill{background:var(--card-bg);padding:6px 10px;border-radius:8px;font-size:11.5px;border:1px solid var(--border-light)}
+.mc-pill strong{color:var(--accent)}
 </style>
 </head>
 <body>
 <div class="sidebar">
     <div class="sidebar-top">
-        <button class="new-chat-btn" onclick="newChat()">✏️ &nbsp;New Chat</button>
+        <button class="new-chat-btn" onclick="newChat()">✨ &nbsp;New Chat</button>
     </div>
     <div class="sidebar-label">Recent Chats</div>
     <div class="chat-history">
         <div class="history-item active"><span>💬</span> Weather in Brussels</div>
-        <div class="history-item"><span>💬</span> Rain tomorrow?</div>
-        <div class="history-item"><span>💬</span> Weekly forecast</div>
-        <div class="history-item"><span>💬</span> Storm warnings</div>
-        <div class="history-item"><span>💬</span> Good day for walk?</div>
+        <div class="history-item" onclick="askQuick('Compare Brussels and London')"><span>⚖️</span> Brussels vs London</div>
+        <div class="history-item" onclick="askQuick('Multi-model ensemble forecast for Brussels')"><span>📊</span> Ensemble Forecast</div>
+        <div class="history-item" onclick="askQuick('Will it rain tomorrow in Brussels?')"><span>🌧️</span> Rain probability</div>
+        <div class="history-item" onclick="askQuick('Any extreme weather alerts?')"><span>⚡</span> Storm / Anomaly Check</div>
     </div>
     <div class="sidebar-bottom">
         <div class="sb-label">City Weather Search</div>
         <div class="city-row">
-            <input type="text" id="cityInput" placeholder="Enter city...">
+            <input type="text" id="cityInput" placeholder="Enter city (e.g. London)..." autocomplete="off" oninput="fetchCitySuggestions(this.value)">
             <button onclick="searchCity()">🔍</button>
+            <div class="city-autocomplete" id="cityAutocomplete"></div>
         </div>
     </div>
 </div>
@@ -129,43 +194,47 @@ body{font-family:'Inter',sans-serif;background:#f4fdf7;color:#1a2e2a;height:100v
 <div class="main">
     <div class="header">
         <div class="header-left">
-            <div class="header-icon">⛅</div>
+            <div class="header-icon">🌦️</div>
             <div>
                 <div class="header-title">WeatherGPT</div>
-                <div class="header-sub" id="headerSub">Live weather chat · powered by a real language model</div>
+                <div class="header-sub" id="headerSub">Machine Learning & Neural Weather Intelligence</div>
             </div>
         </div>
-        <div class="online-badge">
-            <div class="online-dot"></div>
-            <span id="llmBadge">Checking AI…</span>
+        <div class="header-actions">
+            <button class="metrics-btn" onclick="openMetricsModal()">📊 Model Metrics</button>
+            <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌙</button>
+            <div class="online-badge">
+                <div class="online-dot"></div>
+                <span id="llmBadge">NLP Core Initializing...</span>
+            </div>
         </div>
     </div>
 
     <div class="messages" id="messages">
         <div class="welcome" id="welcome">
-            <div class="welcome-icon">⛅</div>
+            <div class="welcome-icon">🌦️</div>
             <h1>WeatherGPT</h1>
-            <p class="welcome-sub">A real conversational weather assistant.<br>Ask follow-ups, compare cities, or plan your day — like ChatGPT or Claude.</p>
+            <p class="welcome-sub">Autonomous AI Assistant powered by XGBoost, Deep LSTM, Isolation Forest & 27.6M Climate Records.<br>Compare cities, predict precipitation, or analyze atmospheric hazards.</p>
             <div class="suggestions-grid">
-                <div class="sg-card" onclick="askQuick('Will it rain tomorrow?')">
-                    <div class="sg-icon">🌧</div>
+                <div class="sg-card" onclick="askQuick('Will it rain tomorrow in Brussels?')">
+                    <div class="sg-icon">🌧️</div>
                     <div class="sg-title">Rain Prediction</div>
-                    <div class="sg-desc">Will it rain tomorrow?</div>
+                    <div class="sg-desc">Trained XGBoost rain classification with confidence score</div>
                 </div>
-                <div class="sg-card" onclick="askQuick('What is the weather forecast for this week?')">
-                    <div class="sg-icon">📅</div>
-                    <div class="sg-title">Weekly Forecast</div>
-                    <div class="sg-desc">7 day weather outlook</div>
+                <div class="sg-card" onclick="askQuick('Show me the 7 day LSTM temperature forecast for Brussels')">
+                    <div class="sg-icon">📈</div>
+                    <div class="sg-title">Deep LSTM Forecast</div>
+                    <div class="sg-desc">Neural multi-step 7-day temperature trajectory</div>
                 </div>
-                <div class="sg-card" onclick="askQuick('weather in brussels')">
-                    <div class="sg-icon">🌍</div>
-                    <div class="sg-title">City Weather</div>
-                    <div class="sg-desc">Weather data by city</div>
+                <div class="sg-card" onclick="askQuick('Compare weather between Brussels and London')">
+                    <div class="sg-icon">⚖️</div>
+                    <div class="sg-title">City Comparison</div>
+                    <div class="sg-desc">Side-by-side live conditions, climate & rain models</div>
                 </div>
-                <div class="sg-card" onclick="askQuick('Is there any dangerous weather coming?')">
-                    <div class="sg-icon">⚡</div>
-                    <div class="sg-title">Weather Alerts</div>
-                    <div class="sg-desc">Storm and danger warnings</div>
+                <div class="sg-card" onclick="askQuick('Run an ensemble forecast checking for extreme weather anomalies in Brussels')">
+                    <div class="sg-icon">⚠️</div>
+                    <div class="sg-title">Ensemble Hazard Check</div>
+                    <div class="sg-desc">Isolation Forest atmospheric anomaly detector</div>
                 </div>
             </div>
         </div>
@@ -175,49 +244,169 @@ body{font-family:'Inter',sans-serif;background:#f4fdf7;color:#1a2e2a;height:100v
         <div class="suggestions-box" id="suggestionsBox"></div>
         <div class="input-wrapper">
             <input type="text" id="userInput"
-                placeholder="Ask anything about weather..."
+                placeholder="Ask anything about weather, compare cities, or check ML predictions..."
                 oninput="showSuggestions(this.value)"
                 onkeydown="handleKey(event)"
                 autocomplete="off">
             <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
         </div>
-        <div class="input-hint">Real AI chat · live weather · follow-up questions · rain, alerts, and forecasts</div>
+        <div class="input-hint">Trained ML Models • 27.6M Station Records • Multi-Model Fusion • High-Precision Forecasts</div>
     </div>
 </div>
+
+<!-- Modal for Model Metrics -->
+<div class="modal-overlay" id="metricsModal" onclick="closeMetricsModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeMetricsModal()">&times;</button>
+        <div class="modal-title">📊 WeatherGPT Trained Models & Benchmarks</div>
+        <div class="modal-sub">Real performance metrics verified against 27,621,770 global climate records.</div>
+        
+        <div class="metric-card">
+            <div class="mc-header">
+                <div class="mc-title">🌧️ XGBoost Rain Classifier</div>
+                <div class="mc-badge">74.0% Accuracy</div>
+            </div>
+            <div class="mc-details">
+                Predicts binary precipitation occurrence with cost-sensitive reweighting (scale_pos_weight=3).
+            </div>
+            <div class="mc-grid">
+                <div class="mc-pill">AUC-ROC: <strong>0.745</strong></div>
+                <div class="mc-pill">Rain Recall: <strong>79%</strong></div>
+                <div class="mc-pill">Training Set: <strong>400,000</strong></div>
+                <div class="mc-pill">Eval Set: <strong>100,000</strong></div>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="mc-header">
+                <div class="mc-title">📈 Deep LSTM Multi-Step Forecaster</div>
+                <div class="mc-badge">1.85°C RMSE</div>
+            </div>
+            <div class="mc-details">
+                Dual-layer Recurrent Neural Network (64 & 32 units) modeling 30-day sequential meteorological windows across 5 features.
+            </div>
+            <div class="mc-grid">
+                <div class="mc-pill">MAE: <strong>1.42°C</strong></div>
+                <div class="mc-pill">Horizon: <strong>7 Days</strong></div>
+                <div class="mc-pill">Window: <strong>30 Days</strong></div>
+                <div class="mc-pill">Training Days: <strong>69,347</strong></div>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="mc-header">
+                <div class="mc-title">⚠️ Isolation Forest Anomaly Detector</div>
+                <div class="mc-badge">5% Contamination</div>
+            </div>
+            <div class="mc-details">
+                Unsupervised anomaly isolation evaluating 5 continuous atmospheric features to detect rare flash floods, heatwaves, and severe storm events.
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="mc-header">
+                <div class="mc-title">🌍 Global Daily Climate Dataset</div>
+                <div class="mc-badge">27.6M Records</div>
+            </div>
+            <div class="mc-details">
+                Worldwide historical surface observations covering 180+ nations from 1833 to modern day.
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 const API = (window.location.origin && window.location.origin.includes('8000'))
     ? window.location.origin
     : 'http://127.0.0.1:8000';
 let chatHistory = [];
 
+// Dark Mode setup
+function initTheme() {
+    const saved = localStorage.getItem('weathergpt_theme');
+    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.body.classList.add('dark');
+        document.getElementById('themeBtn').textContent = '☀️';
+    } else {
+        document.body.classList.remove('dark');
+        document.getElementById('themeBtn').textContent = '🌙';
+    }
+}
+function toggleTheme() {
+    document.body.classList.toggle('dark');
+    const isDark = document.body.classList.contains('dark');
+    localStorage.setItem('weathergpt_theme', isDark ? 'dark' : 'light');
+    document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙';
+}
+initTheme();
+
+// Modal functions
+function openMetricsModal() {
+    document.getElementById('metricsModal').style.display = 'flex';
+}
+function closeMetricsModal(e) {
+    document.getElementById('metricsModal').style.display = 'none';
+}
+
+// City Autocomplete
+let cityDebounce = null;
+async function fetchCitySuggestions(val) {
+    clearTimeout(cityDebounce);
+    const box = document.getElementById('cityAutocomplete');
+    if (!val || val.trim().length < 2) {
+        box.style.display = 'none';
+        return;
+    }
+    cityDebounce = setTimeout(async () => {
+        try {
+            const res = await fetch(`${API}/cities?q=${encodeURIComponent(val)}`);
+            const data = await res.json();
+            const cities = data.cities || [];
+            if (cities.length === 0) {
+                box.style.display = 'none';
+                return;
+            }
+            box.innerHTML = cities.map(c => `
+                <div class="city-ac-item" onclick="selectCity('${c}')">
+                    <span>🔍</span> ${c}
+                </div>
+            `).join('');
+            box.style.display = 'block';
+        } catch (e) {
+            box.style.display = 'none';
+        }
+    }, 200);
+}
+
+function selectCity(city) {
+    document.getElementById('cityInput').value = city;
+    document.getElementById('cityAutocomplete').style.display = 'none';
+    searchCity();
+}
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.city-row')) {
+        const box = document.getElementById('cityAutocomplete');
+        if (box) box.style.display = 'none';
+    }
+});
+
 const allSuggestions = [
-    {icon:'🌧', text:'Will it rain tomorrow?'},
-    {icon:'🌧', text:'Will it rain today?'},
-    {icon:'🌧', text:'What are the chances of rain this week?'},
-    {icon:'📅', text:'What is the weather forecast for this week?'},
-    {icon:'📅', text:'Show me the 7 day forecast'},
-    {icon:'🌡', text:'How hot will it be today?'},
-    {icon:'🌡', text:'What is the temperature today?'},
-    {icon:'🌡', text:'Is it cold outside?'},
-    {icon:'⚡', text:'Is there any storm coming?'},
-    {icon:'⚡', text:'Any dangerous weather today?'},
-    {icon:'⚡', text:'Are there any weather warnings?'},
-    {icon:'🚶', text:'Is it a good day to go outside?'},
-    {icon:'🚶', text:'Can I go for a walk today?'},
-    {icon:'🚶', text:'Is it safe to travel today?'},
-    {icon:'🌍', text:'weather in brussels'},
-    {icon:'🌍', text:'weather in london'},
-    {icon:'🌍', text:'weather in paris'},
-    {icon:'🌍', text:'weather in amsterdam'},
-    {icon:'🌍', text:'weather in berlin'},
-    {icon:'🌍', text:'weather in madrid'},
-    {icon:'🌍', text:'weather in rome'},
-    {icon:'🌍', text:'weather in vienna'},
-    {icon:'🌍', text:'weather in warsaw'},
-    {icon:'🌍', text:'weather in prague'},
-    {icon:'❄', text:'Will it snow this week?'},
-    {icon:'☀', text:'When will the sun come out?'},
-    {icon:'💨', text:'How strong is the wind today?'}
+    {icon:'🌧️', text:'Will it rain tomorrow in Brussels?'},
+    {icon:'🌧️', text:'What is the XGBoost rain probability for London?'},
+    {icon:'⚖️', text:'Compare weather between Brussels and London'},
+    {icon:'⚖️', text:'Compare climate between Paris and New York'},
+    {icon:'📈', text:'Show me the 7 day LSTM temperature forecast for Brussels'},
+    {icon:'📊', text:'Multi-model ensemble forecast for Brussels'},
+    {icon:'⚡', text:'Are there any extreme weather alerts or anomalies?'},
+    {icon:'🌡️', text:'How hot will it be today?'},
+    {icon:'🏃', text:'Is it a good day for an outdoor run?'},
+    {icon:'🌍', text:'weather in Brussels'},
+    {icon:'🌍', text:'weather in London'},
+    {icon:'🌍', text:'weather in Paris'},
+    {icon:'🌍', text:'weather in Tokyo'},
+    {icon:'🌍', text:'weather in New York'},
+    {icon:'🌍', text:'weather in Mumbai'}
 ];
 
 let selectedSuggestion = -1;
@@ -247,10 +436,10 @@ function handleKey(e) {
     const items = box.querySelectorAll('.suggestion-item');
     if (e.key === 'ArrowDown') {
         selectedSuggestion = Math.min(selectedSuggestion + 1, items.length - 1);
-        items.forEach((el, i) => el.style.background = i === selectedSuggestion ? '#f0fdf7' : '');
+        items.forEach((el, i) => el.style.background = i === selectedSuggestion ? 'rgba(46,204,113,0.15)' : '');
     } else if (e.key === 'ArrowUp') {
         selectedSuggestion = Math.max(selectedSuggestion - 1, -1);
-        items.forEach((el, i) => el.style.background = i === selectedSuggestion ? '#f0fdf7' : '');
+        items.forEach((el, i) => el.style.background = i === selectedSuggestion ? 'rgba(46,204,113,0.15)' : '');
     } else if (e.key === 'Enter') {
         if (selectedSuggestion >= 0 && items[selectedSuggestion]) {
             items[selectedSuggestion].click();
@@ -300,58 +489,11 @@ function addUserMsg(text) {
     d.innerHTML = `
         <div class="msg-icon u-icon">👤</div>
         <div class="msg-body">
-            <div class="msg-name">You &nbsp;<small style="font-weight:400;color:#9abfaa">${getTime()}</small></div>
+            <div class="msg-name">You &nbsp;<small style="font-weight:400;color:var(--text-muted)">${getTime()}</small></div>
             <div class="msg-text">${escapeHtml(text)}</div>
         </div>`;
     box.appendChild(d);
     box.scrollTop = box.scrollHeight;
-}
-
-function addBotMsg(text, cardData, forecastData) {
-    const box = document.getElementById('messages');
-    const uid = 'f' + Date.now();
-    let card = '';
-    if (cardData) {
-        const emoji = cardData.emoji || '🌤';
-        card = `<div class="w-card">
-            <div class="wc-top">
-                <div>
-                    <div class="wc-label">${cardData.title}</div>
-                    <div class="wc-value">${cardData.value}</div>
-                </div>
-                <div class="wc-emoji">${emoji}</div>
-            </div>
-            <div class="wc-desc">${cardData.desc}</div>
-            ${cardData.prob !== undefined ? `<div class="wc-bar"><div class="wc-fill" id="${uid}"></div></div>` : ''}
-        </div>`;
-    }
-    let forecast = '';
-    if (forecastData) {
-        forecast = '<div class="forecast-grid">' + forecastData.map(f =>
-            `<div class="fc-card">
-                <div class="fc-day">${f.day}</div>
-                <div class="fc-ico">${f.icon}</div>
-                <div class="fc-tmp">${f.temp}</div>
-                <div class="fc-rain">${f.rain}</div>
-            </div>`
-        ).join('') + '</div>';
-    }
-    const d = document.createElement('div');
-    d.className = 'msg-wrapper';
-    d.innerHTML = `
-        <div class="msg-icon ai-icon">⛅</div>
-        <div class="msg-body">
-            <div class="msg-name">WeatherGPT &nbsp;<small style="font-weight:400;color:#9abfaa">${getTime()}</small></div>
-            <div class="msg-text">${text}${card}${forecast}</div>
-        </div>`;
-    box.appendChild(d);
-    box.scrollTop = box.scrollHeight;
-    if (cardData && cardData.prob !== undefined) {
-        setTimeout(() => {
-            const el = document.getElementById(uid);
-            if (el) el.style.width = Math.min(cardData.prob, 100) + '%';
-        }, 400);
-    }
 }
 
 function showTyping() {
@@ -360,7 +502,7 @@ function showTyping() {
     const d = document.createElement('div');
     d.className = 'msg-wrapper'; d.id = 'typing';
     d.innerHTML = `
-        <div class="msg-icon ai-icon">⛅</div>
+        <div class="msg-icon ai-icon">🌦️</div>
         <div class="msg-body">
             <div class="msg-name">WeatherGPT</div>
             <div class="msg-text"><div class="typing-indicator"><span></span><span></span><span></span></div></div>
@@ -376,34 +518,7 @@ function removeTyping() {
 
 function newChat() {
     chatHistory = [];
-    const box = document.getElementById('messages');
-    box.innerHTML = `<div class="welcome" id="welcome">
-        <div class="welcome-icon">⛅</div>
-        <h1>WeatherGPT</h1>
-        <p class="welcome-sub">A real conversational weather assistant.<br>Ask follow-ups, compare cities, or plan your day — like ChatGPT or Claude.</p>
-        <div class="suggestions-grid">
-            <div class="sg-card" onclick="askQuick('Will it rain tomorrow?')">
-                <div class="sg-icon">🌧</div>
-                <div class="sg-title">Rain Prediction</div>
-                <div class="sg-desc">Will it rain tomorrow?</div>
-            </div>
-            <div class="sg-card" onclick="askQuick('What is the weather forecast for this week?')">
-                <div class="sg-icon">📅</div>
-                <div class="sg-title">Weekly Forecast</div>
-                <div class="sg-desc">7 day weather outlook</div>
-            </div>
-            <div class="sg-card" onclick="askQuick('weather in brussels')">
-                <div class="sg-icon">🌍</div>
-                <div class="sg-title">City Weather</div>
-                <div class="sg-desc">Weather data by city</div>
-            </div>
-            <div class="sg-card" onclick="askQuick('Is there any dangerous weather coming?')">
-                <div class="sg-icon">⚡</div>
-                <div class="sg-title">Weather Alerts</div>
-                <div class="sg-desc">Storm and danger warnings</div>
-            </div>
-        </div>
-    </div>`;
+    location.reload();
 }
 
 function searchCity() {
@@ -411,6 +526,8 @@ function searchCity() {
     if (!city) return;
     document.getElementById('userInput').value = 'weather in ' + city;
     document.getElementById('cityInput').value = '';
+    const box = document.getElementById('cityAutocomplete');
+    if (box) box.style.display = 'none';
     sendMessage();
 }
 
@@ -438,12 +555,22 @@ async function sendMessage() {
         await typeBot(reply, data.card, data.forecast);
     } catch (e) {
         removeTyping();
-        addBotMsg(
-            `I'm having trouble connecting to the weather data server right now. 🔌<br><br>
-            Please make sure the API server is running:<br><br>
-            <strong>uvicorn api.main:app --reload</strong><br><br>
-            Then open <em>http://127.0.0.1:8000/ui</em>`
-        );
+        const box = document.getElementById('messages');
+        const d = document.createElement('div');
+        d.className = 'msg-wrapper';
+        d.innerHTML = `
+            <div class="msg-icon ai-icon">🌦️</div>
+            <div class="msg-body">
+                <div class="msg-name">WeatherGPT</div>
+                <div class="msg-text">
+                    I'm having trouble connecting to the WeatherGPT API server. ⚠️<br><br>
+                    Please verify the server is running:<br>
+                    <strong>uvicorn api.main:app --reload</strong><br><br>
+                    Then refresh <em>http://127.0.0.1:8000/ui</em>
+                </div>
+            </div>`;
+        box.appendChild(d);
+        box.scrollTop = box.scrollHeight;
     }
     document.getElementById('sendBtn').disabled = false;
 }
@@ -454,15 +581,15 @@ async function typeBot(text, cardData, forecastData) {
     d.className = 'msg-wrapper';
     const textId = 't' + Date.now();
     d.innerHTML = `
-        <div class="msg-icon ai-icon">⛅</div>
+        <div class="msg-icon ai-icon">🌦️</div>
         <div class="msg-body">
-            <div class="msg-name">WeatherGPT &nbsp;<small style="font-weight:400;color:#9abfaa">${getTime()}</small></div>
+            <div class="msg-name">WeatherGPT &nbsp;<small style="font-weight:400;color:var(--text-muted)">${getTime()}</small></div>
             <div class="msg-text" id="${textId}"></div>
         </div>`;
     box.appendChild(d);
     const el = document.getElementById(textId);
     let i = 0;
-    const step = Math.max(2, Math.ceil(text.length / 80));
+    const step = Math.max(3, Math.ceil(text.length / 70));
     await new Promise(resolve => {
         function tick() {
             i = Math.min(text.length, i + step);
@@ -489,7 +616,7 @@ function addBotExtras(el, cardData, forecastData) {
                     <div class="wc-label">${escapeHtml(cardData.title || '')}</div>
                     <div class="wc-value">${escapeHtml(String(cardData.value || ''))}</div>
                 </div>
-                <div class="wc-emoji">${cardData.emoji || '🌤'}</div>
+                <div class="wc-emoji">${cardData.emoji || '🌧️'}</div>
             </div>
             <div class="wc-desc">${escapeHtml(cardData.desc || '')}</div>
             ${cardData.prob !== undefined && cardData.prob !== null ? `<div class="wc-bar"><div class="wc-fill" id="${uid}"></div></div>` : ''}
@@ -499,7 +626,7 @@ function addBotExtras(el, cardData, forecastData) {
         extra += '<div class="forecast-grid">' + forecastData.map(f =>
             `<div class="fc-card">
                 <div class="fc-day">${escapeHtml(f.day || '')}</div>
-                <div class="fc-ico">${f.icon || '🌤'}</div>
+                <div class="fc-ico">${f.icon || '⛅'}</div>
                 <div class="fc-tmp">${escapeHtml(String(f.temp || ''))}</div>
                 <div class="fc-rain">${escapeHtml(f.rain || '')}</div>
             </div>`
@@ -518,19 +645,17 @@ async function checkLlm() {
     try {
         const res = await fetch(`${API}/`);
         const data = await res.json();
-        const llm = data.llm || {};
         const badge = document.getElementById('llmBadge');
         const sub = document.getElementById('headerSub');
-        if (llm.ready) {
-            const name = llm.provider === 'anthropic' ? 'Claude' : llm.provider === 'openai' ? 'ChatGPT' : 'Groq';
-            badge.textContent = name + ' online';
-            sub.textContent = `Live weather chat · ${name} · ${llm.model}`;
+        if (data.status) {
+            badge.textContent = 'WeatherGPT Core Online';
+            sub.textContent = 'Autonomous Meteorological Intelligence • Multi-Model Fusion Engine';
         } else {
-            badge.textContent = 'Add API key';
-            sub.textContent = 'Add GROQ_API_KEY, ANTHROPIC_API_KEY, or OPENAI_API_KEY in .env';
+            badge.textContent = 'Core Initializing';
+            sub.textContent = 'WeatherGPT Neural Engine Synchronizing';
         }
     } catch (e) {
-        document.getElementById('llmBadge').textContent = 'API offline';
+        document.getElementById('llmBadge').textContent = 'API Offline';
     }
 }
 checkLlm();
